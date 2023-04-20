@@ -42,7 +42,7 @@ extern const uint8_t g_ble_ll_supp_cmds[BLE_LL_SUPP_CMD_LEN];
  */
 #define BLE_LL_CFG_NUM_HCI_CMD_PKTS     (1)
 
-typedef void (*ble_ll_hci_post_cmd_complete_cb)(void);
+typedef void (*ble_ll_hci_post_cmd_complete_cb)(void *user_data);
 
 #if MYNEWT_VAL(BLE_LL_HCI_VS)
 typedef int (* ble_ll_hci_vs_cb_t)(uint16_t ocf,
@@ -82,6 +82,9 @@ bool ble_ll_hci_adv_mode_ext(void);
 
 /* Check if max octets/time are within allowed range */
 int ble_ll_hci_check_dle(uint16_t max_octets, uint16_t max_time);
+
+/* Used to set post HCI command hook */
+void ble_ll_hci_post_cmd_cb_set(ble_ll_hci_post_cmd_complete_cb cb, void *user_data);
 
 #if MYNEWT_VAL(BLE_LL_HCI_VS)
 void ble_ll_hci_vs_register(struct ble_ll_hci_vs_cmd *cmds, uint32_t num_cmds);
