@@ -2103,6 +2103,7 @@ ble_sm_key_exch_exec(struct ble_sm_proc *proc, struct ble_sm_result *res,
     const uint8_t *irk;
     struct ble_store_gen_key gen_key;
     int ltk_gen = 0;
+    int irk_gen = 0;
     int rc;
 
     ble_sm_key_dist(proc, &init_key_dist, &resp_key_dist);
@@ -2201,10 +2202,22 @@ ble_sm_key_exch_exec(struct ble_sm_proc *proc, struct ble_sm_result *res,
             goto err;
         }
 
-        rc = ble_hs_pvcy_our_irk(&irk);
-        if (rc != 0) {
-            os_mbuf_free_chain(txom);
-            goto err;
+        if (ble_hs_cfg.store_gen_key_cb) {
+            memset(&gen_key, 0, sizeof(gen_key));
+            rc = ble_hs_cfg.store_gen_key_cb(BLE_STORE_GEN_KEY_IRK, &gen_key,
+                                             proc->conn_handle);
+            if (rc == 0) {
+                irk = gen_key.irk;
+                irk_gen = 1;
+            }
+        }
+
+        if (!irk_gen) {
+            rc = ble_hs_pvcy_our_irk(&irk);
+            if (rc != 0) {
+                os_mbuf_free_chain(txom);
+                goto err;
+            }
         }
 
         memcpy(id_info->irk, irk, 16);
