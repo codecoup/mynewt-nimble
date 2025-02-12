@@ -5719,7 +5719,12 @@ ble_gap_ext_connect(uint8_t own_addr_type, const ble_addr_t *peer_addr,
     }
 
     /* Verify peer not already connected. */
-    if (ble_hs_conn_find_by_addr(peer_addr) != NULL) {
+    /* Note: 0xfff0 is a magic value we use to instruct controller to ignore
+     *       check is peer is already connected thus allowing to create 2nd
+     *       connection to the same peer.
+     */
+    if (phy_1m_conn_params->max_ce_len != 0xfff0 &&
+        ble_hs_conn_find_by_addr(peer_addr) != NULL) {
         rc = BLE_HS_EDONE;
         goto done;
     }
