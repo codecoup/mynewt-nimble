@@ -4943,11 +4943,14 @@ ble_ll_adv_reschedule_event(struct ble_ll_adv_sm *advsm)
 
     sch = &advsm->adv_sch;
 
+    sch->start_time += 5;
+    sch->end_time += 5;
+
     if (!sch->enqueued) {
         if (advsm->props & BLE_HCI_LE_SET_EXT_ADV_PROP_HD_DIRECTED) {
             max_delay_ticks = 0;
         } else {
-            max_delay_ticks = ble_ll_tmr_u2t(BLE_LL_ADV_DELAY_MS_MAX * 1000);
+            max_delay_ticks = ble_ll_tmr_u2t(BLE_LL_ADV_DELAY_MS_MAX * 1000) - 5;
         }
 
         rc = ble_ll_sched_adv_reschedule(sch, max_delay_ticks);
