@@ -602,7 +602,7 @@ ble_ll_iso_big_event_done(struct ble_ll_iso_big *big)
             }
 
             if (big->control_active) {
-                big->control_instant = big_counter + 6;
+                big->control_instant = big_counter + 7;
                 big->cstf = 1;
                 big->cssn += 1;
             }
