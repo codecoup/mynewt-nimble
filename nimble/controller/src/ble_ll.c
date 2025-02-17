@@ -1926,7 +1926,9 @@ ble_ll_init(void)
 #endif
 
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_PERIODIC_ADV_SYNC_TRANSFER)
+#if MYNEWT_VAL(BLE_LL_PAST_RECIPIENT)
     features |= BLE_LL_FEAT_SYNC_TRANS_RECV;
+#endif
     features |= BLE_LL_FEAT_SYNC_TRANS_SEND;
 #endif
 
