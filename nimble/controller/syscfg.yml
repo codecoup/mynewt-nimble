@@ -665,6 +665,11 @@ syscfg.defs:
               This is the stack size for LL task.
         value: 120
 
+    BLE_LL_POWER_CLASS_1:
+        description: >
+            Enable LE Power Class 1 feature bit.
+            Note: this is only indicative in features bitmask.
+        value: 0
     BLE_LL_PAST_RECIPIENT:
         description: >
             Enables PAST recipient role.

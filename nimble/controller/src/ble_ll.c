@@ -1922,6 +1922,10 @@ ble_ll_init(void)
     features |= BLE_LL_FEAT_CSA2;
 #endif
 
+#if MYNEWT_VAL(BLE_LL_POWER_CLASS_1)
+    features |= BLE_LL_FEAT_LE_POWER_CLASS_1;
+#endif
+
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LE_2M_PHY)
     features |= BLE_LL_FEAT_LE_2M_PHY;
 #endif
