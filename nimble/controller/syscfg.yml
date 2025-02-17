@@ -665,6 +665,11 @@ syscfg.defs:
               This is the stack size for LL task.
         value: 120
 
+    BLE_LL_PAST_RECIPIENT:
+        description: >
+            Enables PAST recipient role.
+        value: MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_PERIODIC_ADV_SYNC_TRANSFER)
+
 syscfg.defs.'BLE_LL_CFG_FEAT_LE_2M_PHY || BLE_LL_CFG_FEAT_LE_CODED_PHY':
     BLE_LL_PHY: 1
 

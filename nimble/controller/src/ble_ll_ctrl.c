@@ -1154,6 +1154,7 @@ ble_ll_ctrl_rx_phy_update_ind(struct ble_ll_conn_sm *connsm, uint8_t *dptr)
 #endif
 
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_PERIODIC_ADV_SYNC_TRANSFER)
+#if MYNEWT_VAL(BLE_LL_PAST_RECIPIENT)
 /**
  * Called when a BLE_LL_CTRL_PERIODIC_SYNC_IND PDU is received
  *
@@ -1170,6 +1171,7 @@ ble_ll_ctrl_rx_periodic_sync_ind(struct ble_ll_conn_sm *connsm, uint8_t *dptr)
                              connsm->sync_transfer_sync_timeout);
     return BLE_ERR_MAX;
 }
+#endif
 #endif
 
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_SCA_UPDATE)
@@ -3026,9 +3028,11 @@ ble_ll_ctrl_rx_pdu(struct ble_ll_conn_sm *connsm, struct os_mbuf *om)
 #endif
 
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_PERIODIC_ADV_SYNC_TRANSFER)
+#if MYNEWT_VAL(BLE_LL_PAST_RECIPIENT)
     case BLE_LL_CTRL_PERIODIC_SYNC_IND:
         rsp_opcode = ble_ll_ctrl_rx_periodic_sync_ind(connsm, dptr);
         break;
+#endif
 #endif
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_ENHANCED_CONN_UPDATE)
     case BLE_LL_CTRL_SUBRATE_REQ:

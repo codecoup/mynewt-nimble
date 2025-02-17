@@ -1267,12 +1267,14 @@ ble_ll_hci_le_cmd_proc(const uint8_t *cmdbuf, uint8_t len, uint16_t ocf,
         rc = ble_ll_adv_periodic_set_info_transfer(cmdbuf, len, rspbuf, rsplen);
         break;
 #endif
+#if MYNEWT_VAL(BLE_LL_PAST_RECIPIENT)
     case BLE_HCI_OCF_LE_PERIODIC_ADV_SYNC_TRANSFER_PARAMS:
         rc = ble_ll_set_sync_transfer_params(cmdbuf, len, rspbuf, rsplen);
         break;
     case BLE_HCI_OCF_LE_SET_DEFAULT_SYNC_TRANSFER_PARAMS:
         rc = ble_ll_set_default_sync_transfer_params(cmdbuf, len);
         break;
+#endif
 #endif
 #if MYNEWT_VAL(BLE_LL_ISO_BROADCASTER)
     case BLE_HCI_OCF_LE_CREATE_BIG:
