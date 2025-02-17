@@ -2239,8 +2239,13 @@ ble_sm_key_exch_exec(struct ble_sm_proc *proc, struct ble_sm_result *res,
         conn = ble_hs_conn_find_assert(proc->conn_handle);
         ble_hs_conn_addrs(conn, &addrs);
 
-        addr_info->addr_type = addrs.our_id_addr.type;
-        memcpy(addr_info->bd_addr, addrs.our_id_addr.val, 6);
+        if (irk_gen) {
+            addr_info->addr_type = gen_key.id_addr.type;
+            memcpy(addr_info->bd_addr, gen_key.id_addr.val, 6);
+        } else {
+            addr_info->addr_type = addrs.our_id_addr.type;
+            memcpy(addr_info->bd_addr, addrs.our_id_addr.val, 6);
+        }
 
         proc->our_keys.addr_valid = 1;
         memcpy(proc->our_keys.irk, irk, 16);

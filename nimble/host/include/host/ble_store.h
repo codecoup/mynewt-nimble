@@ -238,6 +238,8 @@ struct ble_store_gen_key {
     uint16_t ediv;
     /** Random Number for key generation. */
     uint64_t rand;
+    /* identity address for IRK */
+    ble_addr_t id_addr;
 };
 
 /**
