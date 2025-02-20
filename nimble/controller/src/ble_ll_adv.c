@@ -3736,9 +3736,15 @@ ble_ll_adv_ext_set_param_v2(const uint8_t *cmdbuf, uint8_t len,
         return BLE_ERR_INV_HCI_CMD_PARMS;
     }
 
+#if MYNEWT_VAL(BLE_LL_FEAT_LE_CODED_PHY)
     if ((cmd->pri_phy_opt > 4) || (cmd->sec_phy_opt > 4)) {
         return BLE_ERR_INV_HCI_CMD_PARMS;
     }
+#else
+    if (cmd->pri_phy_opt || cmd->sec_phy_opt) {
+        return BLE_ERR_UNSUPPORTED;
+    }
+#endif
 
     rc = ble_ll_adv_ext_set_param(cmdbuf, len - 2, rspbuf, rsplen);
     if (rc != 0) {
