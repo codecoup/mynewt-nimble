@@ -3043,7 +3043,7 @@ ble_ll_ctrl_rx_pdu(struct ble_ll_conn_sm *connsm, struct os_mbuf *om)
         break;
 #endif
     default:
-        /* Nothing to do here */
+        rsp_opcode = BLE_LL_CTRL_UNKNOWN_RSP;
         break;
     }
 
