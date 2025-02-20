@@ -263,8 +263,10 @@ static const uint8_t octet_40 = OCTET(
 
 static const uint8_t octet_41 = OCTET(
 #if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_PERIODIC_ADV_SYNC_TRANSFER)
+#if MYNEWT_VAL(BLE_LL_PAST_RECIPIENT)
     BIT(0) /* HCI LE Set Periodic Advertising Sync Transfer Parameters */
     BIT(1) /* HCI LE Set Default Periodic Advertising Sync Transfer Parameters */
+#endif
 #endif
 #if MYNEWT_VAL(BLE_LL_ISO)
     BIT(5) /* HCI LE Read Buffer Size [v2] */
