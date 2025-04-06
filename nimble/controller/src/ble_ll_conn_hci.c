@@ -443,7 +443,7 @@ int
 ble_ll_conn_hci_create_check_scan(struct ble_ll_conn_create_scan *p)
 {
     if (p->filter_policy > BLE_HCI_INITIATOR_FILT_POLICY_MAX) {
-        return BLE_ERR_INV_HCI_CMD_PARMS;
+        return BLE_ERR_UNSUPPORTED;
     }
 
     if ((p->filter_policy == 0) &&
