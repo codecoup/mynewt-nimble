@@ -1864,24 +1864,31 @@ ble_ll_conn_hci_rd_auth_pyld_tmo(const uint8_t *cmdbuf, uint8_t len,
     uint16_t handle;
     int rc;
 
-
     if (len != sizeof(*cmd)) {
         return BLE_ERR_INV_HCI_CMD_PARMS;
     }
 
     handle = le16toh(cmd->conn_handle);
+    if (!BLE_LL_CONN_HANDLE_IS_ACL(handle)) {
+        rc = BLE_ERR_CMD_DISALLOWED;
+        rsp->tmo = 0;
+        goto done;
+    }
+
     connsm = ble_ll_conn_find_by_handle(handle);
     if (!connsm) {
         rc = BLE_ERR_UNK_CONN_ID;
         rsp->tmo = 0;
-    } else {
-        rc = BLE_ERR_SUCCESS;
-        rsp->tmo = htole16(connsm->auth_pyld_tmo);
+        goto done;
     }
 
-    rsp->conn_handle = htole16(handle);
+    rc = BLE_ERR_SUCCESS;
+    rsp->tmo = htole16(connsm->auth_pyld_tmo);
 
+done:
+    rsp->conn_handle = htole16(handle);
     *rsplen = sizeof(*rsp);
+
     return rc;
 }
 
@@ -1909,38 +1916,46 @@ ble_ll_conn_hci_wr_auth_pyld_tmo(const uint8_t *cmdbuf, uint8_t len,
         return BLE_ERR_INV_HCI_CMD_PARMS;
     }
 
-    rc = BLE_ERR_SUCCESS;
-
     handle = le16toh(cmd->conn_handle);
+    if (!BLE_LL_CONN_HANDLE_IS_ACL(handle)) {
+        rc = BLE_ERR_CMD_DISALLOWED;
+        goto done;
+    }
 
     connsm = ble_ll_conn_find_by_handle(handle);
     if (!connsm) {
         rc = BLE_ERR_UNK_CONN_ID;
-    } else {
-        /*
-         * The timeout is in units of 10 msecs. We need to make sure that the
-         * timeout is greater than or equal to connItvl * (1 + peripheralLatency)
-         */
-        tmo = le16toh(cmd->tmo);
-        min_tmo = (uint32_t)connsm->conn_itvl * BLE_LL_CONN_ITVL_USECS;
-#if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_ENHANCED_CONN_UPDATE)
-        min_tmo *= connsm->subrate_factor;
-#endif
-        min_tmo *= (connsm->periph_latency + 1);
-        min_tmo /= 10000;
-
-        if (tmo < min_tmo) {
-            rc = BLE_ERR_CMD_DISALLOWED;
-        } else {
-            connsm->auth_pyld_tmo = tmo;
-            if (ble_npl_callout_is_active(&connsm->auth_pyld_timer)) {
-                ble_ll_conn_auth_pyld_timer_start(connsm);
-            }
-        }
+        goto done;
     }
 
+    /*
+     * The timeout is in units of 10 msecs. We need to make sure that the
+     * timeout is greater than or equal to connItvl * (1 + peripheralLatency)
+     */
+    tmo = le16toh(cmd->tmo);
+    min_tmo = (uint32_t)connsm->conn_itvl * BLE_LL_CONN_ITVL_USECS;
+#if MYNEWT_VAL(BLE_LL_CFG_FEAT_LL_ENHANCED_CONN_UPDATE)
+    min_tmo *= connsm->subrate_factor;
+#endif
+    min_tmo *= (connsm->periph_latency + 1);
+    min_tmo /= 10000;
+
+    if (tmo < min_tmo) {
+        rc = BLE_ERR_CMD_DISALLOWED;
+        goto done;
+    }
+
+    connsm->auth_pyld_tmo = tmo;
+    if (ble_npl_callout_is_active(&connsm->auth_pyld_timer)) {
+        ble_ll_conn_auth_pyld_timer_start(connsm);
+    }
+
+    rc = BLE_ERR_SUCCESS;
+
+done:
     rsp->conn_handle = htole16(handle);
     *rsplen = sizeof(*rsp);
+
     return rc;
 }
 #endif
