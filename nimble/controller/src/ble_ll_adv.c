@@ -4915,8 +4915,6 @@ ble_ll_adv_rx_isr_start(uint8_t pdu_type)
 static void
 ble_ll_adv_drop_event(struct ble_ll_adv_sm *advsm, bool preempted)
 {
-    os_sr_t sr;
-
     STATS_INC(ble_ll_stats, adv_drop_event);
 
     ble_ll_sched_rmv_elem(&advsm->adv_sch);
@@ -4928,11 +4926,14 @@ ble_ll_adv_drop_event(struct ble_ll_adv_sm *advsm, bool preempted)
     advsm->aux_active = 0;
 #endif
 
+#if !MYNEWT_VAL(BLE_LL_DTM)
     if (preempted) {
+        os_sr_t sr;
         OS_ENTER_CRITICAL(sr);
         advsm->retry_event = !(advsm->flags & BLE_LL_ADV_SM_FLAG_ACTIVE_CHANSET_MASK);
         OS_EXIT_CRITICAL(sr);
     }
+#endif
 
     advsm->adv_chan = ble_ll_adv_final_chan(advsm);
     ble_ll_event_add(&advsm->adv_txdone_ev);
