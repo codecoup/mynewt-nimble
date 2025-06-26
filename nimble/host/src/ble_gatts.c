@@ -1751,6 +1751,52 @@ ble_gatts_tx_notifications(void)
 }
 
 void
+ble_gatts_restore_cccd_vals(uint16_t conn_handle)
+{
+    struct ble_store_value_cccd cccd_value;
+    struct ble_store_key_cccd cccd_key;
+    struct ble_gatts_clt_cfg *clt_cfg;
+    struct ble_hs_conn *conn;
+    int rc;
+
+    ble_hs_lock();
+
+    conn = ble_hs_conn_find(conn_handle);
+    BLE_HS_DBG_ASSERT(conn != NULL);
+    BLE_HS_DBG_ASSERT(conn->bhc_sec_state.bonded);
+
+    cccd_key.peer_addr = conn->bhc_peer_addr;
+    cccd_key.peer_addr.type =
+        ble_hs_misc_peer_addr_type_to_id(conn->bhc_peer_addr.type);
+    cccd_key.chr_val_handle = 0;
+    cccd_key.idx = 0;
+
+    ble_hs_unlock();
+
+    while (1) {
+        rc = ble_store_read_cccd(&cccd_key, &cccd_value);
+        if (rc != 0) {
+            break;
+        }
+
+        ble_hs_lock();
+
+        conn = ble_hs_conn_find(conn_handle);
+        BLE_HS_DBG_ASSERT(conn != NULL);
+
+        clt_cfg = ble_gatts_clt_cfg_find(conn->bhc_gatt_svr.clt_cfgs,
+                                         cccd_value.chr_val_handle);
+        if (clt_cfg != NULL) {
+            clt_cfg->flags = cccd_value.flags;
+        }
+
+        ble_hs_unlock();
+
+        cccd_key.idx++;
+    }
+}
+
+void
 ble_gatts_bonding_established(uint16_t conn_handle)
 {
     struct ble_store_value_cccd cccd_value;
