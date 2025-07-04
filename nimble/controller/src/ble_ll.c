@@ -1806,10 +1806,17 @@ ble_ll_init(void)
     /* Set public device address if not already set */
     if (ble_ll_is_addr_empty(g_dev_addr)) {
 #if MYNEWT_VAL(BLE_LL_PUBLIC_DEV_ADDR)
-        pub_dev_addr = MYNEWT_VAL(BLE_LL_PUBLIC_DEV_ADDR);
+        /* Read from UICR->CUSTOMER first (e.g. ublox module) */
+        pub_dev_addr = NRF_UICR->CUSTOMER[0];
+        pub_dev_addr |= (uint64_t)NRF_UICR->CUSTOMER[1] << 32;
+        pub_dev_addr = __builtin_bswap64(pub_dev_addr) >> 16;
 
-        pub_dev_addr &= 0xFFFFFF000000;
-        pub_dev_addr |= NRF_FICR->DEVICEADDR[0] & 0x00FFFFFF;
+        /* Fall-back to syscfg+FICR combination if not provisioned */
+        if (pub_dev_addr == 0xFFFFFFFFFFFF) {
+            pub_dev_addr = MYNEWT_VAL(BLE_LL_PUBLIC_DEV_ADDR);
+            pub_dev_addr &= 0xFFFFFF000000;
+            pub_dev_addr |= NRF_FICR->DEVICEADDR[0] & 0x00FFFFFF;
+        }
 
         for (i = 0; i < BLE_DEV_ADDR_LEN; i++) {
             g_dev_addr[i] = pub_dev_addr & 0xff;
